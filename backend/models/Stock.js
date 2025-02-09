@@ -4,8 +4,8 @@ const stockSchema = new mongoose.Schema({
     item: String,
     quantity: Number,
     price: Number,
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    location: string,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    location: String,
     date: { type: Date, default: Date.now }
 });
 
