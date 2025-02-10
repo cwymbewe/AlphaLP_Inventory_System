@@ -19,7 +19,7 @@ const sheets = google.sheets({
 
 const addToGoogleSheet = async (data) => {
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    const range = 'Sheet1!A:E';
+    const range = 'Sheet1!b2:h9999';
     const body = {
         values: [[data.item, data.quantity, data.location, new Date()]]
     };
@@ -27,7 +27,7 @@ const addToGoogleSheet = async (data) => {
         spreadsheetId,
         range,
         valueInputOption: 'RAW',
-        requestBody: {body}
+        requestBody: {values}
     });
 };
 
@@ -36,7 +36,13 @@ const router = express.Router();
 // Add a new stock item
 router.post('/', async (req, res) => {
   try {
+    //Save data to MongoDB first
     const stock = await Stock.create(req.body);
+
+    //Then, add data to Google Sheet
+    await addToGoogleSheet(stock);
+
+    //Return the stock item as response
     res.json(stock);
   } catch (err) {
     res.status(400).json({error: err.message});
