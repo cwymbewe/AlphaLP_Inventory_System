@@ -41,7 +41,7 @@ import stockRoutes from './routes/stockRoutes.js'; // Import stock routes
 
 // Use routes
 app.use('/api/users', userRoutes);
-app.use('/api/posts', stockRoutes); // Ensure routes are correctly set up
+app.use('/api/stock', stockRoutes); // Ensure routes are correctly set up
 
 // Error handling middleware
 app.use((err, req, res, next) => {
