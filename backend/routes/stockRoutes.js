@@ -1,12 +1,14 @@
 import express from 'express';
-import Stock from './models/Stock.js';
+import Stock from '../models/Stock.js';
 import {google} from 'googleapis';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+console.log('GOOGLE_SERVICE_ACCOUNT_JSON:', process.env.GOOGLE_SERVICE_ACCOUNT_JSON); // Log the variable
+
 const auth = new google.auth.GoogleAuth({
-    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
+    credentials: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON) : {},
     scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
 
@@ -30,18 +32,6 @@ const addToGoogleSheet = async (data) => {
 };
 
 const router = express.Router();
-
-/*........................
-// Get all stock items
-router.get('/', async (req, res) => {
-    try {
-        const stockItems = await Stock.find().populate('user', 'name');
-        res.json(stockItems);
-    } catch (err) {
-        res.status(500).json({error: err.message});
-    }
-});
-........................*/
 
 // Add a new stock item
 router.post('/', async (req, res) => {

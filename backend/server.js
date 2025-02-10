@@ -3,13 +3,19 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-// Load environment variables from .env file
-dotenv.config();
+console.log('Current working directory:', process.cwd()); // Log the current working directory
+dotenv.config(); // Load environment variables from .env file
 
-// Connect to MongoDB
+console.log('Environment Variables:', process.env); // Log the entire process.env object
+
+
 const connectToMongoDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    const mongoUri = process.env.MONGO_URI; // Ensure MONGO_URI is defined
+    if (!mongoUri) {
+      throw new Error('MONGO_URI is not defined in the environment variables.');
+    }
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
