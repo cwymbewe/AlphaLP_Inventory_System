@@ -5,7 +5,7 @@ import AlphaLogo from '../images/AlphaLogo.png';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState(''); // Changed from username to email
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false); // Loading state
 
@@ -14,7 +14,7 @@ const Login = () => {
         setLoading(true); // Set loading to true
         try {
             const response = await axios.post('/api/login', { 
-                username,
+                email, // Sending email instead of username
                 password
             });
 
@@ -37,11 +37,11 @@ const Login = () => {
             <h2>Login</h2>
             <form onSubmit={handleLogin}>
                 <div> 
-                    <label>Username:</label>
+                    <label>Email:</label> {/* Updated label to Email */}
                     <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={email} // Updated to use email state
+                        onChange={(e) => setEmail(e.target.value)} // Updated to setEmail
                         required
                     />
                 </div>
