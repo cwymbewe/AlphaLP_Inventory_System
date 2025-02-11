@@ -7,9 +7,11 @@ const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true); // Set loading to true
         try {
             const response = await axios.post('/api/login', { 
                 username,
@@ -23,6 +25,8 @@ const Login = () => {
             }
         } catch (error) {
             alert(`An error occurred: ${error.message}. Please try again later.`); 
+        } finally {
+            setLoading(false); // Reset loading state
         }
     };
 
@@ -50,7 +54,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit" disabled={loading}>Login</button> {/* Disable button while loading */}
             </form>
         </div>
     );

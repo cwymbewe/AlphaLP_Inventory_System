@@ -2,8 +2,16 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import rateLimit from 'express-rate-limit'; // Import rate limiting
 
 const router = express.Router();
+
+// Rate limiting for login attempts
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 login attempts per window
+    message: "Too many login attempts from this IP, please try again later."
+});
 
 // Input validation function
 const validateInput = (req, res, next) => {
@@ -27,8 +35,8 @@ router.post('/register', validateInput, async (req, res) => {
     }
 });
 
-// Login user
-router.post('/login', async (req, res) => {
+// Login user with rate limiting
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {
