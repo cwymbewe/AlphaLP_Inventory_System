@@ -1,14 +1,14 @@
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Update import
 import Login from './components/Login.jsx';
-import StockForm from './components/StockForm.js'; // Import the StockForm component
+import StockForm from './components/StockForm.jsx'; // Import the StockForm component
 
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route path="/stock-form" component={StockForm} /> {/* Define the route for StockForm */}
-        <Route path="/" component={Login} /> {/* Default route for Login */}
-      </Switch>
+      <Routes> {/* Update to use Routes */}
+        <Route path="/stock-form" element={<StockForm />} /> {/* Update to use element prop */}
+        <Route path="/" element={<Login />} /> {/* Update to use element prop */}
+      </Routes>
     </Router>
   );
 }

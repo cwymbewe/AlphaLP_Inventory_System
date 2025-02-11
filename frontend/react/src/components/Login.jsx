@@ -25,7 +25,8 @@ const Login = ({ onLogin }) => {
                 password
             });
 
-            if (response.status === 200) { 
+            if (response.status === 200) {
+                localStorage.setItem('token', response.data.token); // Store the JWT token
                 onLogin(); // Call the onLogin function after successful login
                 navigate('/stock-form');
             } else {
