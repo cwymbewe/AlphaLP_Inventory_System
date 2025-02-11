@@ -29,10 +29,11 @@ const Login = () => {
     };
 
     return (
-        <div>
+        <div className="login-container">
             <h1>Alpha LP Gas Stock Management</h1>
             <img src={AlphaLogo} alt="Alpha Logo" />
             <h2>Login</h2>
+            <img src={AlphaLogo} alt="Alpha Logo" />
             <form onSubmit={handleLogin}>
                 <div>
                     <label>Username:</label>
