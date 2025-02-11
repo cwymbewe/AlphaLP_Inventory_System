@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
+import PropTypes from 'prop-types'; // Import PropTypes for validation
 import axios from "axios";
 
-const StockForm = () => {
+const StockForm = ({ onStockSubmit }) => { // Accept onStockSubmit as a prop
     const [userRole, setUserRole] = useState("");
     const [item, setItem] = useState("");
     const [price, setPrice] = useState(0);
@@ -20,11 +21,13 @@ const StockForm = () => {
     const submitStock = async () => {
         if (userRole === "admin") {
             // Admin logic to add stock
-            await axios.post("/api/stock", {item, quantity, location});
+            await axios.post("/api/stock", { item, quantity, location }); // Admin logic
+            onStockSubmit(); // Call onStockSubmit after successful stock addition
             alert("Stock was successfully added!");
         } else {
             // Regular user logic to add stock quantity
-            await axios.post("/api/stock/quantity", {item, quantity, location});
+            await axios.post("/api/stock/quantity", { item, quantity, location }); // Regular user logic
+            onStockSubmit(); // Call onStockSubmit after successful stock quantity addition
             alert("Stock quantity was successfully added!");
         }
     };
@@ -55,6 +58,10 @@ const StockForm = () => {
 
         </div>
     );
+};
+
+StockForm.propTypes = {
+    onStockSubmit: PropTypes.func.isRequired, // PropTypes validation for onStockSubmit
 };
 
 export default StockForm;

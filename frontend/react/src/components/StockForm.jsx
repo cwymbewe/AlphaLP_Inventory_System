@@ -1,18 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 const StockForm = () => {
-    const [userRole, setUserRole] = useState("");
     const [item, setItem] = useState("");
     const [price, setPrice] = useState("");
 
-    useEffect(() => {
-        // Fetch user role or any other necessary data
-    }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic using axios
+        if (!item || price <= 0) {
+            alert("Please enter valid item and price.");
+            return;
+        }
+        try {
+            await axios.post('/api/stock', { item, price });
+            alert("Stock submitted successfully!");
+            // Reset form fields
+            setItem("");
+            setPrice("");
+        } catch (error) {
+            alert(`Error submitting stock: ${error.message}`);
+        }
     };
 
     return (
