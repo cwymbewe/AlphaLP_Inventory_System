@@ -3,7 +3,6 @@ import rateLimit from 'express-rate-limit'; // Import rate limiting
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import rateLimit from 'express-rate-limit'; // Import rate limiting
 
 const router = express.Router(); // Create a new router instance
 
