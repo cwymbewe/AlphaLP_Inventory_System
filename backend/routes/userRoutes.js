@@ -5,34 +5,47 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
+// Input validation function
+const validateInput = (req, res, next) => {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: "All fields are required." });
+    }
+    next();
+};
+
 // Register user
-router.post('/register', async (req, res) => {
-    const {name, email, password} = req.body;
+router.post('/register', validateInput, async (req, res) => {
+    const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-        const newUser = await User.create({name, email, password: hashedPassword});
-        res.json({message: "User created successfully", user: newUser});
+        const newUser = await User.create({ name, email, password: hashedPassword });
+        res.json({ message: "User created successfully", user: newUser });
     } catch (err) {
-        res.status(400).json({error: err.message});
+        res.status(400).json({ error: err.message });
     }
 });
 
 // Login user
 router.post('/login', async (req, res) => {
-    const {email, password} = req.body;
-    
+    const { email, password } = req.body;
+
     try {
-        const user = await User.findOne({email});
-        if (!user) return res.status(404).json({error: "User not found"});
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ error: "User not found" });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({error: "Invalid credentials"});
+        if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-        const token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
-        res.json({message: "Login successful", token});
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ error: "JWT secret is not defined." });
+        }
+
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.json({ message: "Login successful", token });
     } catch (err) {
-        res.status(500).json({error: err.message});
+        res.status(500).json({ error: err.message });
     }
 });
 

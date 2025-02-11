@@ -1,41 +1,38 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import AlphaLogo from '../images/AlphaLogo.png'
+import AlphaLogo from '../images/AlphaLogo.png';
 
 const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
-    
     const [password, setPassword] = useState('');
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const response = await fetch('/api/login', { 
+        try {
+            const response = await axios.post('/api/login', { 
+                username,
+                password
+            });
 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }), 
-
-        });
-
-        if (response.ok) {
-            navigate('/stock-form'); 
-
-        } else {
-            alert('Login failed. Please check your credentials.');
+            if (response.status === 200) { 
+                navigate('/stock-form'); 
+            } else {
+                alert('Login failed. Please check your credentials.'); 
+            }
+        } catch (error) {
+            alert(`An error occurred: ${error.message}. Please try again later.`); 
         }
     };
 
     return (
         <div className="login-container">
             <h1>Alpha LP Gas Stock Management</h1>
-            <img src={AlphaLogo} alt="Alpha Logo" />
+            <img src={AlphaLogo} alt="Alpha Logo" /> 
             <h2>Login</h2>
-            <img src={AlphaLogo} alt="Alpha Logo" />
             <form onSubmit={handleLogin}>
-                <div>
+                <div> 
                     <label>Username:</label>
                     <input
                         type="text"

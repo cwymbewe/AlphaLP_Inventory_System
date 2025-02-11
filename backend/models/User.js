@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt"; // Import bcrypt
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -11,5 +12,17 @@ const userSchema = new mongoose.Schema({
         default: "user"
     }
 });
+
+userSchema.pre("save", async function(next) { // Hash password before saving
+    if (this.isModified("password")) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email validation regex
+userSchema.path("email").validate(function(value) {
+    return emailRegex.test(value);
+}, "Invalid email format");
 
 export default mongoose.model("User", userSchema);
