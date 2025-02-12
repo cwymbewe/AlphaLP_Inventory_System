@@ -1,25 +1,30 @@
 import mongoose from 'mongoose';
-import User from './models/User.js'; // Adjust the path as necessary
+import User from './models/User.js'; 
+import dotenv from 'dotenv';
 
-const getUser = async (email) => {
+dotenv.config(); // Adjust the path as necessary
+
+export const getUser = async (email) => {
+    let userFound = false; // Variable to track if user is found
     try {
-        await mongoose.connect('mongodb+srv://alphaLPGas:alphalpgas@cluster0.zylsj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(process.env.MONGO_URI);
 
         const user = await User.findOne({ email });
         if (user) {
-            console.log('User found:', user);
+            userFound = true; // Set userFound to true if user is found
+            return user; // Return the user object
         } else {
-            console.log('User not found');
+            return null; // Return null if user is not found
         }
     } catch (error) {
         console.error('Error fetching user:', error);
     } finally {
-        mongoose.connection.close();
+        // Only close the connection if it was opened
+        if (mongoose.connection.readyState === 1) {
+            mongoose.connection.close();
+        }
     }
 };
 
 // Replace with the email of the user you want to check
-getUser('info@alphalpgas.co.za');
+// getUser('info@alphalpgas.co.za');

@@ -15,7 +15,6 @@ const App = () => {
   return (
     <Router>
       <Routes> {/* Update to use Routes */}
-        <Route path="/stock-form" element={<StockForm />} /> {/* Update to use element prop */}
         <Route path="/" element={<Login onLogin={onLogin} />} /> {/* Pass onLogin to Login */}
         <Route path="/stock-form" element={isLoggedIn ? <StockForm /> : <Navigate to="/" />} /> {/* Redirect if not logged in */}
       </Routes>

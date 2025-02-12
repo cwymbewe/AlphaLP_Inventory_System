@@ -4,39 +4,62 @@ import { useNavigate } from 'react-router-dom';
 import AlphaLogo from '../images/AlphaLogo.png';
 
 const Login = ({ onLogin }) => {
-    // PropTypes validation for onLogin
     const navigate = useNavigate();
-    const [email, setEmail] = useState(''); // Changed from username to email
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false);
+    const [stocks, setStocks] = useState([]); // State to hold stocks
 
     const handleLogin = async (e) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email format validation
-    if (!emailPattern.test(email)) {
-        alert("Please enter a valid email address.");
-        setLoading(false);
-        return;
-    }
+        // Notify user of successful login
+        alert("Login successful! Fetching stocks...");
         e.preventDefault();
-        setLoading(true); // Set loading to true
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address.");
+            setLoading(false);
+            return;
+        }
+        if (!passwordPattern.test(password)) {
+            alert("Password must be at least 8 characters long and contain letters, numbers, and at least one special character.");
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
         try {
-            const response = await axios.post('/api/users/login', { 
-                email, // Sending email instead of username
+            const response = await axios.post('http://localhost:3000/api/users/login', { 
+                email,
                 password
             });
 
-            if (response.status === 200) {
-                localStorage.setItem('token', response.data.token); // Store the JWT token
-                onLogin(); // Call the onLogin function after successful login
-                navigate('/stock-form');
+            if (response.data) {
+                localStorage.setItem('token', response.data.token);
+                onLogin();
+                // Fetch stocks after successful login
+                const stockResponse = await axios.get('http://localhost:3000/api/stock', {
+                    headers: {
+                        Authorization: `Bearer ${response.data.token}`
+                    }
+                });
+                setStocks(stockResponse.data); // Store stocks in state
+                navigate('/stock-form'); // Navigate to stock form
             } else {
-                alert('Login failed. Please check your credentials.'); 
-            // Consider replacing this with a user-friendly notification system
+                alert('User does not exist. Please register.');
+                // Enable the Add User button
+                document.getElementById('addUserButton').disabled = false; // Assuming the button has this ID
+                const register = window.confirm("User not found. Would you like to register?");
+                if (register) {
+                    // Logic to open registration form
+                // After adding the user, you can call the login function again
+                }
             }
         } catch (error) {
-            alert(`An error occurred: ${error.message}. Please try again later.`); 
+            alert(`An error occurred: ${error.message}. Please try again later.`);
         } finally {
-            setLoading(false); // Reset loading state
+            setLoading(false);
         }
     };
 
@@ -45,14 +68,15 @@ const Login = ({ onLogin }) => {
             <h1>Alpha LP Gas Stock Management</h1>
             <img src={AlphaLogo} alt="Alpha Logo" /> 
             <h2>Login</h2>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleLogin} className="login-form">
                 <div> 
-                    <label>Email:</label> {/* Updated label to Email */}
+                    <label>Email:</label>
                     <input
                         type="text"
-                        value={email} // Updated to use email state
-                        onChange={(e) => setEmail(e.target.value)} // Updated to setEmail
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
+                        autoComplete="email"
                     />
                 </div>
                 <div>
@@ -62,10 +86,20 @@ const Login = ({ onLogin }) => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        autoComplete="current-password"
                     />
                 </div>
-                <button type="submit" disabled={loading}>Login</button> {/* Disable button while loading */}
+                <button type="submit" disabled={loading}>Login</button>
+                <button type="button" onClick={() => {/* Logic to open registration form */}}>Add User</button>
             </form>
+            <div>
+                <h2>Your Stocks</h2>
+                <ul>
+                    {stocks.map(stock => (
+                        <li key={stock.id}>{stock.item}: {stock.quantity} in {stock.location} at ${stock.price}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };

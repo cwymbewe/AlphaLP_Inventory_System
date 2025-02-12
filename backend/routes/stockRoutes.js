@@ -37,10 +37,12 @@ const addToGoogleSheet = async (data) => {
     });
 };
 
+import { authenticate } from '../authMiddleware.js'; // Import authentication middleware
+
 const router = express.Router();
 
-// Add a new stock item
-router.post('/', async (req, res) => {
+
+router.post('/', authenticate, async (req, res) => { // Apply authentication middleware
     const { item, quantity, location } = req.body;
 
     // Data validation
@@ -59,6 +61,16 @@ router.post('/', async (req, res) => {
         res.json(stock);
     } catch (err) {
         res.status(400).json({ error: err.message });
+    }
+});
+
+router.get('/', authenticate, async (req, res) => {
+    console.log('Fetching stocks...'); // Log the fetching action
+    try {
+        const stocks = await Stock.find(); // Fetch all stocks from the database
+        res.json(stocks); // Return stocks as response
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

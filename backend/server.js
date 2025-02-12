@@ -16,8 +16,6 @@ const connectToMongoDB = async () => {
       throw new Error('MONGO_URI is not defined in the environment variables.');
     }
     await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
     });
     console.log('MongoDB connected...');
   } catch (err) {
@@ -39,9 +37,16 @@ app.use(express.json());
 import userRoutes from './routes/userRoutes.js';
 import stockRoutes from './routes/stockRoutes.js'; // Import stock routes
 
+import path from 'path'; // Import path module
+
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(process.cwd(), 'frontend/react/dist'))); // Adjust the path as necessary
+
+console.log('Registering user routes...'); // Log when user routes are registered
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/stock', stockRoutes); // Ensure routes are correctly set up
+console.log('User routes registered successfully.'); // Log successful registration
 
 // Error handling middleware
 app.use((err, req, res, next) => {
