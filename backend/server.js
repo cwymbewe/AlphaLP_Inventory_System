@@ -1,37 +1,41 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import connectToMongoDB from './config/db.js';
+import errorHandler from './middleware/errorHandler.js';
 
-console.log('Current working directory:', process.cwd()); // Log the current working directory
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
-console.log('Environment Variables:', process.env); // Log the entire process.env object
-
-
-const connectToMongoDB = async () => {
-  try {
-    const mongoUri = process.env.MONGO_URI; // Ensure MONGO_URI is defined
-    if (!mongoUri) {
-      throw new Error('MONGO_URI is not defined in the environment variables.');
-    }
-    await mongoose.connect(mongoUri, {
-    });
-    console.log('MongoDB connected...');
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1);
-  }
-};
-
+// Connect to MongoDB
 connectToMongoDB();
 
 // Initialize Express app
 const app = express();
 
-// Enable CORS
+// Security middleware
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// Request logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl} [${new Date().toISOString()}]`);
+  next();
+});
+
+// Test API routes
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
 
 // Import routes
 import userRoutes from './routes/userRoutes.js';
@@ -48,14 +52,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/stock', stockRoutes); // Ensure routes are correctly set up
 console.log('User routes registered successfully.'); // Log successful registration
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).send('Internal Server Error'); // Improved error handling
-});
+// Error handling
+app.use(errorHandler);
 
 // Port
 const port = process.env.PORT || 3000;
 
 // Start server
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(port, () => {
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
+});

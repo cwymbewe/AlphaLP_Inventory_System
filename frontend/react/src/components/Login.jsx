@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/apiService';
 import AlphaLogo from '../images/AlphaLogo.png';
 
 const Login = ({ onLogin }) => {
@@ -8,56 +8,31 @@ const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [stocks, setStocks] = useState([]); // State to hold stocks
+    const [error, setError] = useState(null);
 
     const handleLogin = async (e) => {
-        // Notify user of successful login
-        alert("Login successful! Fetching stocks...");
         e.preventDefault();
+        setError(null);
+        
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
         if (!emailPattern.test(email)) {
-            alert("Please enter a valid email address.");
-            setLoading(false);
+            setError('Please enter a valid email address.');
             return;
         }
         if (!passwordPattern.test(password)) {
-            alert("Password must be at least 8 characters long and contain letters, numbers, and at least one special character.");
-            setLoading(false);
+            setError('Password must be at least 8 characters long and contain letters, numbers, and at least one special character.');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:3000/api/users/login', { 
-                email,
-                password
-            });
-
-            if (response.data) {
-                localStorage.setItem('token', response.data.token);
-                onLogin();
-                // Fetch stocks after successful login
-                const stockResponse = await axios.get('http://localhost:3000/api/stock', {
-                    headers: {
-                        Authorization: `Bearer ${response.data.token}`
-                    }
-                });
-                setStocks(stockResponse.data); // Store stocks in state
-                navigate('/stock-form'); // Navigate to stock form
-            } else {
-                alert('User does not exist. Please register.');
-                // Enable the Add User button
-                document.getElementById('addUserButton').disabled = false; // Assuming the button has this ID
-                const register = window.confirm("User not found. Would you like to register?");
-                if (register) {
-                    // Logic to open registration form
-                // After adding the user, you can call the login function again
-                }
-            }
+            await loginUser({ email, password });
+            onLogin();
+            navigate('/stock-form');
         } catch (error) {
-            alert(`An error occurred: ${error.message}. Please try again later.`);
+            setError(error.message || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -92,14 +67,7 @@ const Login = ({ onLogin }) => {
                 <button type="submit" disabled={loading}>Login</button>
                 <button type="button" onClick={() => {/* Logic to open registration form */}}>Add User</button>
             </form>
-            <div>
-                <h2>Your Stocks</h2>
-                <ul>
-                    {stocks.map(stock => (
-                        <li key={stock.id}>{stock.item}: {stock.quantity} in {stock.location} at ${stock.price}</li>
-                    ))}
-                </ul>
-            </div>
+            {error && <div className="error-message">{error}</div>}
         </div>
     );
 };
