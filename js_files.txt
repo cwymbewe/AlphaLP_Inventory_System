@@ -1,0 +1,2 @@
+frontend/react/src/auth.js
+frontend/react/src/components/playground-1.mongodb.js
