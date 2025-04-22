@@ -1,10 +1,15 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import connectToMongoDB from './config/db.js';
-import errorHandler from './middleware/errorHandler.js';
+import connectToMongoDB from './config/db';
+import errorHandler from './middleware/errorHandler';
+
+import userRoutes from './routes/userRoutes';
+import stockRoutes from './routes/stockRoutes';
+
+import path from 'path';
 
 dotenv.config();
 
@@ -27,30 +32,23 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Request logging
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.originalUrl} [${new Date().toISOString()}]`);
   next();
 });
 
 // Test API routes
-app.get('/api/test', (req, res) => {
+app.get('/api/test', (req: Request, res: Response) => {
   res.json({ message: 'API is working!' });
 });
 
-// Import routes
-import userRoutes from './routes/userRoutes.js';
-import stockRoutes from './routes/stockRoutes.js'; // Import stock routes
-
-import path from 'path'; // Import path module
-
 // Serve static files from the frontend build directory
-app.use(express.static(path.join(process.cwd(), 'frontend/react/dist'))); // Adjust the path as necessary
+app.use(express.static(path.join(process.cwd(), 'frontend/react/dist')));
 
-console.log('Registering user routes...'); // Log when user routes are registered
-// Use routes
+console.log('Registering user routes...');
 app.use('/api/users', userRoutes);
-app.use('/api/stock', stockRoutes); // Ensure routes are correctly set up
-console.log('User routes registered successfully.'); // Log successful registration
+app.use('/api/stock', stockRoutes);
+console.log('User routes registered successfully.');
 
 // Error handling
 app.use(errorHandler);
