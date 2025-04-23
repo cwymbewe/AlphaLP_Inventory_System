@@ -5,9 +5,12 @@ import axios from "axios";
 interface StockFormProps {
     onStockSubmit: () => void; // Define the type for onStockSubmit
     isLoggedIn: boolean; // Define the type for isLoggedIn
+    data: any; // Define the type for data
+    error: string | null; // Define the type for error
+    onLogout: () => void; // Define the type for onLogout
 }
 
-const StockForm: React.FC<StockFormProps> = ({ onStockSubmit, isLoggedIn }) => { // Accept onStockSubmit and isLoggedIn as props
+const StockForm: React.FC<StockFormProps> = ({ onStockSubmit, isLoggedIn, data, error, onLogout }) => { // Accept onStockSubmit and isLoggedIn as props
     const [userRole, setUserRole] = useState(isLoggedIn ? "user" : "guest"); // Set user role based on login status
     const [item, setItem] = useState("");
     const [price, setPrice] = useState(0);
@@ -87,6 +90,9 @@ const StockForm: React.FC<StockFormProps> = ({ onStockSubmit, isLoggedIn }) => {
 StockForm.propTypes = {
     onStockSubmit: PropTypes.func.isRequired, // PropTypes validation for onStockSubmit
     isLoggedIn: PropTypes.bool.isRequired, // PropTypes validation for isLoggedIn
+    data: PropTypes.any, // PropTypes validation for data
+    error: PropTypes.string, // PropTypes validation for error
+    onLogout: PropTypes.func.isRequired, // PropTypes validation for onLogout
 };
 
 export default StockForm;
