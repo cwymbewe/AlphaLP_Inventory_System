@@ -3,14 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/apiService';
 import AlphaLogo from '../images/AlphaLogo.png';
 
-const Login = ({ onLogin }) => {
+interface LoginProps {
+    onLogin: () => void;
+}
+
+const Login = ({ onLogin }: LoginProps) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
         
@@ -32,7 +36,11 @@ const Login = ({ onLogin }) => {
             onLogin();
             navigate('/stock-form');
         } catch (error) {
-            setError(error.message || 'Login failed. Please try again.');
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Login failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -52,6 +60,8 @@ const Login = ({ onLogin }) => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         autoComplete="email"
+                        title="Enter your email address"
+                        placeholder="Email Address"
                     />
                 </div>
                 <div>
@@ -62,6 +72,8 @@ const Login = ({ onLogin }) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         autoComplete="current-password"
+                        title="Enter your password"
+                        placeholder="Password"
                     />
                 </div>
                 <button type="submit" disabled={loading}>Login</button>
