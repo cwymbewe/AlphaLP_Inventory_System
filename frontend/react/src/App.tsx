@@ -12,6 +12,7 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
+      setIsLoggedIn(true);
       fetchData()
         .then(data => setData(data))
         .catch(err => {
@@ -28,28 +29,50 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
+    setData(null);
+    setError(null);
+  };
+
+  const handleStockSubmit = () => {
+    fetchData()
+      .then(data => setData(data))
+      .catch(err => {
+        setError(err.message);
+        console.error('Error fetching data:', err);
+      });
   };
 
   return (
     <Router>
       <Routes>
         <Route 
-          path="/" 
+          path='/' 
           element={
             isLoggedIn ? 
-              <Navigate to="/stock-form" /> : 
+              <Navigate to='/stock-form' /> : 
               <Login onLogin={handleLogin} />
           } 
         />
         <Route 
-          path="/stock-form" 
+          path='/stock-form' 
           element={
             isLoggedIn ? 
-              <StockForm data={data} error={error} onLogout={handleLogout} /> : 
-              <Navigate to="/" />
+              <StockForm 
+                data={data} 
+                error={error} 
+                onLogout={handleLogout} 
+                onStockSubmit={handleStockSubmit} 
+                isLoggedIn={isLoggedIn} 
+              /> : 
+              <Navigate to='/' />
           } 
         />
       </Routes>
+      {isLoggedIn && (
+        <button onClick={handleLogout} className="logout-button">
+          Logout
+        </button>
+      )}
     </Router>
   );
   
